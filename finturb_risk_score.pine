@@ -1,0 +1,87 @@
+// This Pine Script™ source code is subject to the terms of the Mozilla Public License 2.0
+// https://mozilla.org/MPL/2.0/
+// © AI IntelliCore Limited — finturb.com
+
+//@version=5
+indicator("FinTurb Risk Score", overlay=false, precision=1)
+
+// ═══════════════════════════════════════════════════════════════════════════
+// DESCRIPTION
+// ═══════════════════════════════════════════════════════════════════════════
+// Companion pane to the "FinTurb Risk Regime Overlay".
+// Displays the composite risk score (0–100) as an oscillator with regime
+// threshold bands and the liquidity-adjusted 4-way score as a dotted line.
+//
+// Use both indicators together: the overlay colours the chart background,
+// this pane shows the quantitative detail.
+
+// ═══════════════════════════════════════════════════════════════════════════
+// DATA FEED
+// ═══════════════════════════════════════════════════════════════════════════
+[ft_open, ft_high, ft_low, ft_close, ft_volume] = request.seed(
+     "ai-intellicore/finturb-tradingview-data",
+     "FINTURB_REGIME",
+     input.timeframe("1D"))
+
+risk_score     = ft_open
+risk_score_4w  = ft_high
+ar_pct         = ft_low
+md_pct         = ft_close
+regime_code    = ft_volume
+
+// ═══════════════════════════════════════════════════════════════════════════
+// COLOURS
+// ═══════════════════════════════════════════════════════════════════════════
+c_normal   = #00d4aa
+c_elevated = #ffe66d
+c_stress   = #ff9f43
+c_crisis   = #ff6b6b
+
+score_color = switch
+    regime_code == 1 => c_normal
+    regime_code == 2 => c_elevated
+    regime_code == 3 => c_stress
+    regime_code == 4 => c_crisis
+    => color.gray
+
+// ═══════════════════════════════════════════════════════════════════════════
+// THRESHOLD BANDS (background fills)
+// ═══════════════════════════════════════════════════════════════════════════
+h_normal   = hline(25,  "Normal ceiling",   color=color.new(c_normal, 70),   linestyle=hline.style_dashed)
+h_elevated = hline(50,  "Elevated ceiling", color=color.new(c_elevated, 70), linestyle=hline.style_dashed)
+h_stress   = hline(75,  "Stress ceiling",   color=color.new(c_stress, 70),   linestyle=hline.style_dashed)
+h_zero     = hline(0,   "",                 color=color.new(color.gray, 90))
+h_hundred  = hline(100, "",                 color=color.new(color.gray, 90))
+
+fill(h_zero,    h_normal,   color=color.new(c_normal, 92),   title="Normal zone")
+fill(h_normal,  h_elevated, color=color.new(c_elevated, 92), title="Elevated zone")
+fill(h_elevated,h_stress,   color=color.new(c_stress, 92),   title="Stress zone")
+fill(h_stress,  h_hundred,  color=color.new(c_crisis, 92),   title="Crisis zone")
+
+// ═══════════════════════════════════════════════════════════════════════════
+// PLOTS
+// ═══════════════════════════════════════════════════════════════════════════
+plot(risk_score, "Composite Risk Score", color=score_color, linewidth=2)
+plot(risk_score_4w, "Liquidity-Adjusted (4-Way)",
+     color=color.new(score_color, 40), linewidth=1, style=plot.style_line)
+
+// Horizontal zero line
+hline(50, "Midline", color=color.new(color.white, 80), linestyle=hline.style_dotted)
+
+// ═══════════════════════════════════════════════════════════════════════════
+// REGIME LABEL
+// ═══════════════════════════════════════════════════════════════════════════
+regime_name = switch
+    regime_code == 1 => "Normal"
+    regime_code == 2 => "Elevated"
+    regime_code == 3 => "Stress"
+    regime_code == 4 => "Crisis"
+    => "—"
+
+if barstate.islast
+    label.new(bar_index + 2, risk_score,
+         regime_name + "\n" + str.tostring(math.round(risk_score, 1)),
+         style=label.style_label_left,
+         color=color.new(#1a1d29, 20),
+         textcolor=score_color,
+         size=size.small)
