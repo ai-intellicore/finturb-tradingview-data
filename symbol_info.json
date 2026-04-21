@@ -1,0 +1,12 @@
+{
+  "symbol_info": [
+    {
+      "symbol": "FINTURB_REGIME",
+      "currency": "USD",
+      "description": "FinTurb Composite Risk Regime (0-100 score, regime-coded volume)",
+      "pricescale": 100,
+      "exchange": "FINTURB",
+      "type": "index"
+    }
+  ]
+}
