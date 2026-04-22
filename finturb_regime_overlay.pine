@@ -1,26 +1,13 @@
 //@version=5
 // FinTurb Risk Regime Overlay
-// © AI IntelliCore Limited — finturb.com
-// Mozilla Public License 2.0
+// (c) AI IntelliCore Limited — finturb.com
+// Data through 2026-04-17 — regenerate with generate_pine_scripts.py
 
 indicator("FinTurb Risk Regime Overlay", overlay=true, max_labels_count=50, max_lines_count=100)
-
-// ═══════════════════════════════════════════════════════════════════════════
-// Overlays the FinTurb composite risk regime onto any chart.
-// Background tint changes with the macro regime (Normal → Crisis).
-// Vertical markers at regime transition dates.
-// The regime is market-wide — applies to every asset.
-// Updated daily. Full dashboards at finturb.com
-// Not investment advice. See finturb.com/terms.
-// ═══════════════════════════════════════════════════════════════════════════
 
 bg_opacity = input.int(85, "Background opacity (0=solid, 100=invisible)", 0, 100)
 show_markers = input.bool(true, "Show regime transition markers")
 show_label = input.bool(true, "Show current regime label")
-
-// ── Regime data (last 50 transitions from the FinTurb signal pipeline) ──
-// Auto-updated daily. Full history at finturb.com/signal-strategist
-// 1=Normal, 2=Elevated, 3=Stress, 4=Crisis
 
 var int regime = 1
 t = timestamp(year, month, dayofmonth, 0, 0, 0)
@@ -128,40 +115,19 @@ else if t >= timestamp(2025, 12, 15, 0, 0, 0)
 else
     regime := 1  // Default
 
-// ── Colours ──────────────────────────────────────────────────────────────
 c_bg = regime == 1 ? color.new(#00d4aa, bg_opacity) : regime == 2 ? color.new(#ffe66d, bg_opacity) : regime == 3 ? color.new(#ff9f43, bg_opacity) : regime == 4 ? color.new(#ff6b6b, bg_opacity) : color.new(color.black, 100)
-
 c_solid = regime == 1 ? #00d4aa : regime == 2 ? #ffe66d : regime == 3 ? #ff9f43 : regime == 4 ? #ff6b6b : color.gray
-
 r_name = regime == 1 ? "NORMAL" : regime == 2 ? "ELEVATED" : regime == 3 ? "STRESS" : regime == 4 ? "CRISIS" : "—"
 
-// ── Background ───────────────────────────────────────────────────────────
 bgcolor(c_bg, title="Regime background")
 
-// ── Regime label ─────────────────────────────────────────────────────────
 if show_label and barstate.islast
-    label.new(bar_index + 3, high, "FinTurb: " + r_name,
-         style=label.style_label_left,
-         color=color.new(#1a1d29, 20),
-         textcolor=c_solid,
-         size=size.normal)
+    label.new(bar_index + 3, high, "FinTurb: " + r_name, style=label.style_label_left, color=color.new(#1a1d29, 20), textcolor=c_solid, size=size.normal)
 
-// ── Transition markers ───────────────────────────────────────────────────
 regime_prev = regime[1]
 if show_markers and regime != regime_prev and not na(regime_prev)
-    line.new(bar_index, low, bar_index, high,
-         color=c_solid, style=line.style_dashed, width=1)
-    label.new(bar_index, low, "→ " + r_name,
-         style=label.style_label_up,
-         color=color.new(#1a1d29, 30),
-         textcolor=c_solid,
-         size=size.tiny)
+    line.new(bar_index, low, bar_index, high, color=c_solid, style=line.style_dashed, width=1)
+    label.new(bar_index, low, "→ " + r_name, style=label.style_label_up, color=color.new(#1a1d29, 30), textcolor=c_solid, size=size.tiny)
 
-// ── Alerts ───────────────────────────────────────────────────────────────
-alertcondition(regime != regime[1] and regime >= 3,
-     title="FinTurb Stress/Crisis",
-     message="FinTurb regime shifted to stress or crisis. Review exposure. finturb.com")
-
-alertcondition(regime != regime[1],
-     title="FinTurb Regime Change",
-     message="FinTurb regime changed. Check finturb.com for details.")
+alertcondition(regime != regime[1] and regime >= 3, title="FinTurb Stress/Crisis", message="FinTurb regime shifted to stress or crisis. finturb.com")
+alertcondition(regime != regime[1], title="FinTurb Regime Change", message="FinTurb regime changed. finturb.com")
