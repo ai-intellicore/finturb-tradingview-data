@@ -11,7 +11,7 @@ var float ar_pct = 50.0
 t = timestamp(year, month, dayofmonth, 0, 0, 0)
 
 if t >= timestamp(2026, 5, 1, 0, 0, 0)
-    ar_pct := 93.1
+    ar_pct := 93.2
 else if t >= timestamp(2026, 4, 30, 0, 0, 0)
     ar_pct := 93.6
 else if t >= timestamp(2026, 4, 29, 0, 0, 0)
