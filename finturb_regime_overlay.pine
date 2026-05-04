@@ -13,7 +13,7 @@ var int regime = 1
 t = timestamp(year, month, dayofmonth, 0, 0, 0)
 
 if t >= timestamp(2026, 5, 1, 0, 0, 0)
-    regime := 3  // Stress
+    regime := 4  // Crisis
 else if t >= timestamp(2026, 4, 30, 0, 0, 0)
     regime := 2  // Elevated
 else if t >= timestamp(2026, 4, 24, 0, 0, 0)
