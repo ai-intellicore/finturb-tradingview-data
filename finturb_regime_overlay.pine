@@ -1,7 +1,7 @@
 //@version=5
 // FinTurb Risk Regime Overlay
 // (c) AI IntelliCore Limited — finturb.com
-// Data through 2026-05-01 — regenerate with generate_pine_scripts.py
+// Data through 2026-05-04 — regenerate with generate_pine_scripts.py
 
 indicator("FinTurb Risk Regime Overlay", overlay=true, max_labels_count=50, max_lines_count=100)
 
@@ -12,7 +12,9 @@ show_label = input.bool(true, "Show current regime label")
 var int regime = 1
 t = timestamp(year, month, dayofmonth, 0, 0, 0)
 
-if t >= timestamp(2026, 5, 1, 0, 0, 0)
+if t >= timestamp(2026, 5, 4, 0, 0, 0)
+    regime := 1  // Normal
+else if t >= timestamp(2026, 5, 1, 0, 0, 0)
     regime := 4  // Crisis
 else if t >= timestamp(2026, 4, 30, 0, 0, 0)
     regime := 2  // Elevated
@@ -110,8 +112,6 @@ else if t >= timestamp(2026, 1, 2, 0, 0, 0)
     regime := 3  // Stress
 else if t >= timestamp(2025, 12, 30, 0, 0, 0)
     regime := 1  // Normal
-else if t >= timestamp(2025, 12, 29, 0, 0, 0)
-    regime := 3  // Stress
 else
     regime := 1  // Default
 
